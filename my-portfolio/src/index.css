@@ -1,13 +1,9 @@
-
-/* index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
-}
+/* Smooth scroll */
+html { scroll-behavior: smooth; }
 
-body {
-  transition: background-color 0.3s, color 0.3s;
-}
+/* Gentle transitions */
+body { transition: background-color 0.25s ease, color 0.25s ease; }
