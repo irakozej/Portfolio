@@ -1,38 +1,32 @@
-// server.js
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const helmet = require("helmet");
-const morgan = require("morgan");
-const projectController = require("./controllers/projectController");
-const authController = require("./controllers/authController");
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
 
+import projectRoutes from "./routes/projectRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+
+dotenv.config();
 const app = express();
-const port = process.env.PORT || 4000;
 
-app.use(helmet());
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || "*" // restrict in production
-}));
+app.use(cors());
 app.use(express.json());
-app.use(morgan("dev"));
 
-// Routes
-app.use("/api/auth", authController);
-app.use("/api/projects", projectController);
+app.use("/api/admin", adminRoutes);
+// Connect to MongoDB
 
-// Basic home route
-app.get("/", (req, res) => res.send("Portfolio API is running"));
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error(err));
 
-// Connect to MongoDB and start server
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log("✅ Connected to MongoDB");
-  app.listen(port, () => console.log(`🚀 Server listening on port ${port}`));
-}).catch(err => {
-  console.error("MongoDB connection error:", err);
-  process.exit(1);
-});
+app.use("/api/projects", projectRoutes);
+app.use("/api/auth", authRoutes);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+app.use(cors({
+    origin: "http://localhost:3000", // React dev server
+    credentials: true
+  }));
